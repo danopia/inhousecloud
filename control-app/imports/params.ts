@@ -22,9 +22,9 @@ export const extractMessageAttributes = (reqParams: URLSearchParams, prefix: str
       const name = params.get(`Name`)!;
       const dataType = params.get(`Value.DataType`);
       switch (dataType) {
-        case 'string':
+        case 'String':
           return [name, {
-            dataType: 'string' as const,
+            dataType: 'String' as const,
             value: params.get(`Value.StringValue`)!,
           }];
         default: throw new Meteor.Error(`unimpl`, `TODO: attribute data type ${dataType}`);

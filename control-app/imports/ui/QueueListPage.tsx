@@ -10,14 +10,26 @@ export const QueueListPage = () => {
   return (
     <div>
       <h2>Queues</h2>
-      <table><tbody>{queues.map(queue => (
-        <tr key={queue._id}>
-          <td>{queue.name}</td>
-          <td>{queue.messagesActive}</td>
-          <td>{queue.messagesVisible}</td>
-          <td>{queue.messagesDelayed}</td>
-        </tr>
-      ))}</tbody></table>
+      <table>
+        <thead>
+          <tr>
+            <th>Queue</th>
+            <th>Last Polled</th>
+            <th># Active</th>
+            <th># Visible</th>
+            <th># Delayed</th>
+          </tr>
+        </thead>
+        <tbody>{queues.map(queue => (
+          <tr key={queue._id}>
+            <td>{queue.name}</td>
+            <td>{queue.lastPolledAt?.toLocaleTimeString()}</td>
+            <td>{queue.messagesActive}</td>
+            <td>{queue.messagesVisible}</td>
+            <td>{queue.messagesDelayed}</td>
+          </tr>
+        ))}</tbody>
+      </table>
     </div>
   );
 };

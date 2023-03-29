@@ -3,7 +3,7 @@ import { Mongo } from 'meteor/mongo';
 import { Queue } from './queues';
 
 export type QueueMessageAttribute = {
-  dataType: 'string';
+  dataType: 'String';
   value: string;
 };
 

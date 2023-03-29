@@ -16,7 +16,7 @@ WebApp.connectHandlers.use('/', (req, res, next) => {
     const reqParams = new URLSearchParams(reqBody);
     const reqAuth = new Map(req.headers['authorization']?.slice('AWS4-HMAC-SHA256 '.length).split(', ').map(x => x.split('=') as [string,string]));
     const [accessKeyId, sigDate, region, service, sigVersion] = reqAuth.get('Credential')?.split('/') ?? [];
-    console.log(`${service} API:`, reqParams);
+    console.log(`${service} API:`, reqParams.get('Action'), reqParams.get('QueueUrl')?.split('/')[4] ?? reqParams);
     const accountId = '123456123456';
 
     function sendXml(status: number, text: string) {

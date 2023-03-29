@@ -4,7 +4,7 @@ import { TopicSubscriptionsCollection } from './topic-subscriptions';
 import { Topic } from './topics';
 
 export type TopicMessageAttribute = {
-  dataType: 'string';
+  dataType: 'String';
   value: string;
 };
 

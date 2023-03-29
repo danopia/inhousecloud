@@ -9,6 +9,7 @@ export interface Queue {
   tags: Record<string,string>;
   createdAt: Date;
   modifiedAt: Date;
+  lastPolledAt?: Date;
 
   messagesActive: number;
   messagesVisible: number;

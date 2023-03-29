@@ -219,7 +219,7 @@ export async function handleSqsAction(reqParams: URLSearchParams, accountId: str
       systemAttributes: extractMessageAttributes(reqParams, 'MessageSystemAttribute.'),
     });
 
-    return `<Response><SendMessageResult><MessageId>${messageId}</MessageId></SendMessageResult></Response>`;
+    return `<SendMessageResponse><SendMessageResult><MessageId>${messageId}</MessageId></SendMessageResult></SendMessageResponse>`;
   }
 
   case 'SendMessageBatch': {
@@ -261,7 +261,7 @@ export async function handleSqsAction(reqParams: URLSearchParams, accountId: str
       }
     }
 
-    return `<Response><SendMessageBatchResult>${results.join('')}</SendMessageBatchResult></Response>`;
+    return `<SendMessageBatchResponse><SendMessageBatchResult>${results.join('')}</SendMessageBatchResult></SendMessageBatchResponse>`;
   }
 
   case 'ReceiveMessage': {
@@ -270,7 +270,11 @@ export async function handleSqsAction(reqParams: URLSearchParams, accountId: str
       region, accountId,
       name: queueName,
     });
-    if (!queue) throw new Meteor.Error(404, 'no-queue');
+    if (!queue) {
+      // Avoid thundering herd when no queues exist
+      await new Promise(ok => setTimeout(ok, 5000 + Math.round(Math.random() * 5000)));
+      throw new Meteor.Error(404, 'no-queue');
+    }
 
     const maxMsgs = parseInt(
       reqParams.get('MaxNumberOfMessages')
@@ -280,6 +284,14 @@ export async function handleSqsAction(reqParams: URLSearchParams, accountId: str
       ?? `${queue.config.ReceiveMessageWaitTimeSeconds}`);
 
     const messages = await waitForMessages(queue, maxMsgs, maxSeconds);
+
+    await QueuesCollection.updateAsync({
+      _id: queue._id,
+    }, {
+      $set: {
+        'lastPolledAt': new Date(),
+      },
+    });
 
     return `<Response><ReceiveMessageResult>${messages.map(msg => `
     <Message>
@@ -428,7 +440,7 @@ Meteor.setInterval(async () => {
       messagesDelayed: 0,
       messagesNotVisible: 0,
      }
-  })
+  }, { multi: true });
 }, 10 * 1000);
 
 
