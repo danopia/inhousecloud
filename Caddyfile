@@ -1,0 +1,24 @@
+{
+  auto_https disable_redirects
+  https_port 3433
+}
+
+sqs.eu-west-1.amazonaws.com:3443 {
+  tls internal
+  reverse_proxy localhost:3000
+}
+
+sts.eu-west-1.amazonaws.com:3443 {
+  tls internal
+  reverse_proxy localhost:3000
+}
+
+sns.eu-west-1.amazonaws.com:3443 {
+  tls internal
+  reverse_proxy localhost:3000
+}
+
+s3.eu-west-1.amazonaws.com:3443 {
+  tls internal
+  reverse_proxy localhost:3000
+}
