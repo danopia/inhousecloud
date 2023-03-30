@@ -27,6 +27,11 @@ export const extractMessageAttributes = (reqParams: URLSearchParams, prefix: str
             dataType: 'String' as const,
             value: params.get(`Value.StringValue`)!,
           }];
+        case 'Binary':
+          return [name, {
+            dataType: 'Binary' as const,
+            value: Buffer.from(params.get(`Value.BinaryValue`)!, 'base64'),
+          }];
         default: throw new Meteor.Error(`unimpl`, `TODO: attribute data type ${dataType}`);
       }
     }));

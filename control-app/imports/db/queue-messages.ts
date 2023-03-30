@@ -5,6 +5,9 @@ import { Queue } from './queues';
 export type QueueMessageAttribute = {
   dataType: 'String';
   value: string;
+} | {
+  dataType: 'Binary';
+  value: Uint8Array;
 };
 
 export interface QueueMessage {
