@@ -2,3 +2,13 @@ body {
   padding: 10px;
   font-family: sans-serif;
 }
+
+table {
+  border-collapse: collapse;
+}
+th, td {
+  padding: 0.2em 0.5em;
+}
+tr:hover th, tr:hover td {
+  background-color: #eee;
+}

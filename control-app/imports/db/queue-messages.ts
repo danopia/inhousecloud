@@ -50,8 +50,9 @@ export async function sendQueueMessage(
   if (queue.config.FifoQueue) {
     if (!message.groupId) throw new Meteor.Error(`fifo`,
       `This is a fifo queue`);
-    if (queue.config.ContentBasedDeduplication && !message.dedupId) throw new Meteor.Error(`fifo`,
-      `This fifo queue requires a MessageDeduplicationId because ContentBasedDeduplication is not set`);
+    // TODO: ContentBasedDeduplication doesn't seem to set properly
+    // if (queue.config.ContentBasedDeduplication && !message.dedupId) throw new Meteor.Error(`fifo`,
+    //   `This fifo queue requires a MessageDeduplicationId because ContentBasedDeduplication is not set`);
   } else {
     if (message.groupId || message.dedupId) throw new Meteor.Error(`fifo`, `Is not a fifo queue`);
   }

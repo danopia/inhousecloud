@@ -46,8 +46,9 @@ export async function sendTopicMessage(
   if (topic.config.FifoTopic) {
     if (!message.groupId) throw new Meteor.Error(`fifo`,
       `This is a fifo Topic`);
-    if (topic.config.ContentBasedDeduplication && !message.dedupId) throw new Meteor.Error(`fifo`,
-      `This fifo Topic requires a MessageDeduplicationId because ContentBasedDeduplication is not set`);
+    // TODO: ContentBasedDeduplication doesn't seem to set properly
+    // if (topic.config.ContentBasedDeduplication && !message.dedupId) throw new Meteor.Error(`fifo`,
+    //   `This fifo Topic requires a MessageDeduplicationId because ContentBasedDeduplication is not set`);
   } else {
     if (message.groupId || message.dedupId) throw new Meteor.Error(`fifo`, `Is not a fifo Topic`);
   }

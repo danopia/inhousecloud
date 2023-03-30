@@ -4,13 +4,13 @@ import { QueuesCollection } from '../db/queues';
 
 export const QueueListPage = () => {
   const queues = useTracker(() => {
-    return QueuesCollection.find({}, {sort: {messagesActive: -1}}).fetch();
+    return QueuesCollection.find({}, {sort: {messagesActive: -1, lastPolledAt: -1, name: 1}}).fetch();
   });
 
   return (
     <div>
       <h2>Queues</h2>
-      <table>
+      <table border={1}>
         <thead>
           <tr>
             <th>Queue</th>
