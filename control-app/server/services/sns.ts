@@ -185,7 +185,7 @@ export async function handleSnsAction(reqParams: URLSearchParams, accountId: str
 
   case 'Publish': {
     const topic = await TopicsCollection.findOneAsync({
-      _id: reqParams.get('TopicArn')!,
+      _id: reqParams.get('TopicArn')!.replace('000000000000', '123456123456'), // TODO: handle account ID better
     });
     if (!topic) throw new Meteor.Error(404, 'no-topic');
 
@@ -194,7 +194,7 @@ export async function handleSnsAction(reqParams: URLSearchParams, accountId: str
       dedupId: reqParams.get('MessageDeduplicationId'),
       groupId: reqParams.get('MessageGroupId'),
       messageStructure: reqParams.get('MessageStructure'),
-      attributes: extractMessageAttributes(reqParams, 'MessageAttribute.'),
+      attributes: extractMessageAttributes(reqParams, 'MessageAttributes.entry.'),
     });
 
     return `<Response><PublishResult><MessageId>${messageId}</MessageId></PublishResult></Response>`;

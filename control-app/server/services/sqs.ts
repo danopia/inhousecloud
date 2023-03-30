@@ -1,4 +1,5 @@
 import { Meteor } from "meteor/meteor";
+import { createHash } from 'node:crypto';
 import { deleteQueueMessage, QueueMessagesCollection, receiveQueueMessages, sendQueueMessage } from "/imports/db/queue-messages";
 import { Queue, QueuesCollection } from "/imports/db/queues";
 import { extractMessageAttributes, extractParamArray } from "/imports/params";
@@ -219,7 +220,11 @@ export async function handleSqsAction(reqParams: URLSearchParams, accountId: str
       systemAttributes: extractMessageAttributes(reqParams, 'MessageSystemAttribute.'),
     });
 
-    return `<SendMessageResponse><SendMessageResult><MessageId>${messageId}</MessageId></SendMessageResult></SendMessageResponse>`;
+    const bodyMd5Hex = createHash('md5').update(reqParams.get('MessageBody') ?? '').digest("hex");
+    return `<SendMessageResponse><SendMessageResult>
+      <MD5OfMessageBody>${bodyMd5Hex}</MD5OfMessageBody>
+      <MessageId>${messageId}</MessageId>
+    </SendMessageResult></SendMessageResponse>`;
   }
 
   case 'SendMessageBatch': {
@@ -233,6 +238,7 @@ export async function handleSqsAction(reqParams: URLSearchParams, accountId: str
     const results = new Array<string>;
     for (const params of extractParamArray(reqParams, 'SendMessageBatchRequestEntry.', '.Id')) {
       const msgId = params.get('Id');
+      const bodyMd5Hex = createHash('md5').update(params.get('MessageBody') ?? '').digest("hex");
       try {
         const { messageId } = await sendQueueMessage(latest, {
           body: params.get('MessageBody'),
@@ -246,7 +252,7 @@ export async function handleSqsAction(reqParams: URLSearchParams, accountId: str
           <SendMessageBatchResultEntry>
             <Id>${msgId}</Id>
             <MessageId>${messageId}</MessageId>
-            <MD5OfMessageBody>0e024d309850c78cba5eabbeff7cae71</MD5OfMessageBody>
+            <MD5OfMessageBody>${bodyMd5Hex}</MD5OfMessageBody>
           </SendMessageBatchResultEntry>`);
       } catch (err) {
         if (!(err instanceof Meteor.Error)) throw err;
@@ -256,7 +262,7 @@ export async function handleSqsAction(reqParams: URLSearchParams, accountId: str
             <Code>${err.error}</Code>
             <Message>${err.reason}</Message>
             <SenderFault>true</SenderFault>
-            <MD5OfMessageBody>0e024d309850c78cba5eabbeff7cae71</MD5OfMessageBody>
+            <MD5OfMessageBody>${bodyMd5Hex}</MD5OfMessageBody>
           </BatchResultErrorEntry>`);
       }
     }
@@ -293,11 +299,14 @@ export async function handleSqsAction(reqParams: URLSearchParams, accountId: str
       },
     });
 
+    if (messages.length > 0) {
+      console.log('Returning messages:', messages.map(x => x._id));
+    }
     return `<Response><ReceiveMessageResult>${messages.map(msg => `
     <Message>
       <MessageId>${msg._id}</MessageId>
       <ReceiptHandle>${msg._id}/${msg.totalDeliveries}</ReceiptHandle>
-      <MD5OfBody>fafb00f5732ab283681e124bf8747ed1</MD5OfBody>
+      <MD5OfBody>${createHash('md5').update(msg.body).digest("hex")}</MD5OfBody>
       <Body>${escapeForXml(msg.body)}</Body>${
       Object.entries(msg.attributes).map(pair => `
       <MessageAttribute>
